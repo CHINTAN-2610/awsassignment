@@ -1,0 +1,23 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 864899837235.dkr.ecr.ap-south-1.amazonaws.com
+
+  build:
+    commands:
+      - echo Building the Docker image...
+      - docker build -t chintanassesment:1 .
+      - docker tag chintanassesment:1 864899837235.dkr.ecr.ap-south-1.amazonaws.com/chintanassesment:1
+
+  post_build:
+    commands:
+      - echo Pushing the Docker image to ECR...
+      - docker push 864899837235.dkr.ecr.ap-south-1.amazonaws.com/chintanassesment:1
+      - echo Writing image definitions file...
+      - printf '[{"name":"chintanecscontainer","imageUri":"%s"}]' 864899837235.dkr.ecr.ap-south-1.amazonaws.com/chintanassesment:1 > imagedefinitions.json
+
+artifacts:
+  files: imagedefinitions.json
